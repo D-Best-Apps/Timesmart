@@ -3,8 +3,38 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # args:
+      #   CACHE_BUST: ${CACHE_BUST-}
     container_name: timeclock_app
-    network_mode: host          # <- full host networking
+    ports:
+      - "8080:80"
     env_file:
       - .env
+    environment:
+      DB_HOST: host.docker.internal   # or replace with your bridge gateway IP
+      DB_PORT: "3306"
+      DB_NAME: timeclock              # <-- set your DB name
+      DB_USER: timeclock              # <-- set your DB user
+      DB_PASS: "NewStrongPass!"       # <-- set a strong password (quote if special chars)
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - timeclock_network
+    # depends_on:
+    #   - db
+
+  # db:
+  #   image: mariadb:latest
+  #   container_name: timeclock_db
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./timeclock-schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  #   networks:
+  #     - timeclock_network
+
+networks:
+  timeclock_network:
+    driver: bridge
