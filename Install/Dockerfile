@@ -18,6 +18,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy Nginx and Supervisor configuration
 COPY nginx.conf /etc/nginx/sites-available/default
+RUN rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Set working directory
