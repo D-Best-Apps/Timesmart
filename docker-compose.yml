@@ -1,45 +1,26 @@
 services:
-  php:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: timeclock_php
-    volumes:
-      - .:/var/www/html
-    environment:
-      DB_HOST: db
-      DB_DATABASE: timeclock
-      DB_USER: timeclock
-      DB_PASSWORD: Secure$Net@26$$
-    networks:
-      - timeclock_network
-
-  nginx:
-    image: nginx:latest
-    container_name: timeclock_nginx
+    container_name: timeclock_app
     ports:
       - "8080:80"
-    volumes:
-      - .:/var/www/html
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
+    env_file:
+      - .env
     networks:
       - timeclock_network
 
-#  db:
-#    image: mariadb:latest
-#    container_name: timeclock_db
-#    restart: unless-stopped
-#    environment:
-#      MYSQL_DATABASE: timeclock
-#      MYSQL_USER: timeclock
-#      MYSQL_PASSWORD: Secure$Net@26$$
-#      MYSQL_ROOT_PASSWORD: root
-#    volumes:
-#      - ./timeclock-schema.sql:/docker-entrypoint-initdb.d/init.sql
-#    networks:
-#      - timeclock_network
+# db:
+#   image: mariadb:latest
+#   container_name: timeclock_db
+#   restart: unless-stopped
+#   env_file:
+#     - .env
+#   volumes:
+#     - ./timeclock-schema.sql:/docker-entrypoint-initdb.d/init.sql
+#   networks:
+#     - timeclock_network
 
 networks:
   timeclock_network:
