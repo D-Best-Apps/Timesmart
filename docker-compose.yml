@@ -14,7 +14,7 @@ services:
     # If you want automatic restarts:
     restart: unless-stopped
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "host.docker.internal:host-gateway
     networks:
       - timeclock_network
     # If you later re-enable the bundled DB service, uncomment depends_on:
@@ -35,4 +35,3 @@ services:
 networks:
   timeclock_network:
     driver: bridge
-
