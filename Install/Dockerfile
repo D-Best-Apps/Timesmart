@@ -1,46 +1,60 @@
 FROM php:8.2-fpm
 
-# Install Nginx, Git, Supervisor, and other dependencies
-RUN apt-get update && apt-get install -y \
+# ---- OS deps ----
+# Add --no-install-recommends and include JPEG/WebP/Freetype for proper GD support.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     git \
     supervisor \
-    libzip-dev \
     unzip \
+    libzip-dev \
+    zlib1g-dev \
     libpng-dev \
-    && rm -rf /var/lib/apt/lists/*
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libfreetype6-dev \
+  && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mysqli zip gd
+# ---- PHP extensions ----
+# Build GD with JPEG/WebP/Freetype; also install PDO MySQL, MySQLi, Zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+ && docker-php-ext-install -j"$(nproc)" gd pdo_mysql mysqli zip
+# Optional perf: enable opcache
+# RUN docker-php-ext-install opcache
 
-# Get latest Composer
+# ---- Composer (allow root) ----
+ENV COMPOSER_ALLOW_SUPERUSER=1
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy Nginx and Supervisor configuration
+# ---- Nginx & Supervisor config ----
 COPY nginx.conf /etc/nginx/sites-available/default
-RUN rm /etc/nginx/sites-enabled/default && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+RUN rm -f /etc/nginx/sites-enabled/default \
+ && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Set working directory
+# ---- App code ----
 WORKDIR /var/www/html
-
-# Add git safe directory
 RUN git config --global --add safe.directory /var/www/html
 
-# Clone the repository
-RUN find . -mindepth 1 -delete && git clone https://github.com/D-Best-Apps/Timesmart.git .
+# Cache-buster lets you force a fresh clone at build time
+ARG CACHE_BUST=initial
+# Optionally: ARG APP_BRANCH=main
+RUN find . -mindepth 1 -delete \
+ && git clone --depth 1 https://github.com/D-Best-Apps/Timesmart.git . 
+    # For a specific branch, add: --branch ${APP_BRANCH}
 
-# Install Composer dependencies
-RUN composer install --no-dev --optimize-autoloader
+# ---- PHP deps ----
+RUN composer install --no-dev --no-interaction --optimize-autoloader
 
-# Copy .env file into the container
-COPY .env .env
+# ---- Environment (prefer runtime envs over baking .env) ----
+# If you truly need it inside the image, leave this line; otherwise comment it out
+# and rely on docker-compose `env_file:` instead.
+# COPY .env .env
 
-# Change ownership of the files to www-data
+# ---- Permissions ----
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80 for Nginx
 EXPOSE 80
 
-# Run Supervisor to start Nginx and PHP-FPM
+# Start Supervisor (which starts php-fpm -F and nginx -g "daemon off;")
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

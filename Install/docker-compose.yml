@@ -3,24 +3,32 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # Optional: cache-buster so you can force a fresh clone during builds
+      # args:
+      #   - CACHE_BUST=${CACHE_BUST-}
     container_name: timeclock_app
     ports:
       - "8080:80"
     env_file:
       - .env
+    # If you want automatic restarts:
+    restart: unless-stopped
     networks:
       - timeclock_network
+    # If you later re-enable the bundled DB service, uncomment depends_on:
+    # depends_on:
+    #   - db
 
-# db:
-#   image: mariadb:latest
-#   container_name: timeclock_db
-#   restart: unless-stopped
-#   env_file:
-#     - .env
-#   volumes:
-#     - ./timeclock-schema.sql:/docker-entrypoint-initdb.d/init.sql
-#   networks:
-#     - timeclock_network
+  # db:
+  #   image: mariadb:latest
+  #   container_name: timeclock_db
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./timeclock-schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  #   networks:
+  #     - timeclock_network
 
 networks:
   timeclock_network:
