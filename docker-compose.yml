@@ -3,21 +3,18 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      # Optional: cache-buster so you can force a fresh clone during builds
       # args:
-      #   - CACHE_BUST=${CACHE_BUST-}
+      #   CACHE_BUST: ${CACHE_BUST-}
     container_name: timeclock_app
     ports:
       - "8080:80"
     env_file:
       - .env
-    # If you want automatic restarts:
     restart: unless-stopped
     extra_hosts:
-      - "host.docker.internal:host-gateway
+      - "host.docker.internal:host-gateway"
     networks:
       - timeclock_network
-    # If you later re-enable the bundled DB service, uncomment depends_on:
     # depends_on:
     #   - db
 
