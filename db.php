@@ -1,10 +1,10 @@
 <?php
 // db.php
 
-$host = 'localhost';
-$db   = 'timeclock';
-$user = 'timeclock';
-$pass = 'Secure$Net@26$$';
+$host = getenv('DB_HOST');
+$db   = getenv('DB_DATABASE');
+$user = getenv('DB_USER');
+$pass = getenv('DB_PASSWORD');
 
 // Establish the database connection.
 $conn = new mysqli($host, $user, $pass, $db);
