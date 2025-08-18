@@ -32,6 +32,9 @@ RUN find . -mindepth 1 -delete && git clone https://github.com/D-Best-Apps/Times
 # Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Copy .env file into the container
+COPY .env .env
+
 # Change ownership of the files to www-data
 RUN chown -R www-data:www-data /var/www/html
 
