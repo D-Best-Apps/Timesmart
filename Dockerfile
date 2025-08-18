@@ -4,6 +4,7 @@ FROM php:8.0-fpm
 RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -15,8 +16,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . .
+# Clone the repository
+RUN git clone https://github.com/D-Best-Apps/Timesmart.git .
 
 # Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader
