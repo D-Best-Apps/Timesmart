@@ -4,7 +4,7 @@
 $host = 'localhost';
 $db   = 'timeclock';
 $user = 'timeclock';
-$pass = 'Secure$Net@26$$';
+$pass = 'SecureNet25!';
 
 // Establish the database connection.
 $conn = new mysqli($host, $user, $pass, $db);

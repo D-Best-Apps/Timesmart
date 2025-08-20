@@ -108,7 +108,7 @@ if ($exportPDF) {
     foreach ($empIDs as $eid) {
         $html .= "<tr><td>" . htmlspecialchars($employees[$eid]) . "</td>";
         foreach ($dates as $date) {
-            $e = $attendance[$eid][$date] ?? ['status' => 'Absent'];
+            $e = $attendance[$eid][$date] ?? ['status' => 'Absent', 'hours' => null, 'TimeIN' => null, 'TimeOUT' => null];
             $label = $e['status'];
             if ($e['hours']) $label .= "<br>{$e['hours']} hrs";
             $class = strtolower($e['status']);
@@ -365,7 +365,7 @@ if ($exportPDF) {
                     <td><?= htmlspecialchars($employees[$eid]) ?></td>
                     <?php foreach ($dates as $d): ?>
                         <?php
-                        $e = $attendance[$eid][$d] ?? ['status' => 'Absent'];
+                        $e = $attendance[$eid][$d] ?? ['status' => 'Absent', 'hours' => null, 'TimeIN' => null, 'TimeOUT' => null];
                         $label = $e['status'];
                         if ($e['hours']) $label .= "<br>{$e['hours']} hrs";
                         $class = strtolower($e['status']);

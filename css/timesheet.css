@@ -165,7 +165,7 @@ select {
     border-spacing: 0; /* Remove space between cells */
     margin-top: 1.5rem;
     background-color: var(--card-bg);
-    font-size: 0.95rem; /* Slightly smaller for more data */
+    font-size: 1.1rem; /* Slightly smaller for more data */
     border-radius: var(--border-radius);
     overflow: hidden; /* Ensures rounded corners are visible */
     box-shadow: var(--box-shadow);

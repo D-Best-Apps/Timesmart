@@ -101,9 +101,9 @@ if (!isset($_SESSION['admin'])) {
             </div>
 
             <div class="report-card">
-                <h3>Attendance Reports</h3>
-                <p>Generate attendance reports by selecting exact dates, users, and format preferences.</p>
-                <a href="attendance.php">Open Attendance</a>
+                <h3>Custom Date Reports <em>(Coming Soon)</em></h3>
+                <p>Generate custom reports by selecting exact dates, users, and format preferences.</p>
+                <a href="#">Not Available</a>
             </div>
         </div>
     </div>

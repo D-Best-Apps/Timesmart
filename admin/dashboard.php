@@ -7,6 +7,16 @@ if (!isset($_SESSION['admin'])) {
 
 require '../db.php';
 
+$adminUsername = $_SESSION['admin'];
+
+// Fetch admin's 2FA status
+$stmt = $conn->prepare("SELECT TwoFAEnabled FROM admins WHERE username = ?");
+$stmt->bind_param("s", $adminUsername);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin2FAStatus = $result->fetch_assoc();
+$is2FAEnabled = $admin2FAStatus['TwoFAEnabled'] ?? 0;
+
 // Get count of pending edits
 $pendingCount = 0;
 $stmt = $conn->query("SELECT COUNT(*) AS total FROM pending_edits WHERE Status = 'Pending'");
@@ -146,6 +156,19 @@ if ($statsResult && $statsRow = $statsResult->fetch_assoc()) {
             <p>Browse through reports.</p>
             <a href="reports.php">Open</a>
         </div>
+        <?php if (!$is2FAEnabled): ?>
+        <div class="card">
+            <h2>Enable 2FA</h2>
+            <p>Secure your admin account with Two-Factor Authentication.</p>
+            <a href="enable_2fa.php">Setup 2FA</a>
+        </div>
+        <?php else: ?>
+        <div class="card">
+            <h2>Disable 2FA</h2>
+            <p>Remove Two-Factor Authentication from your admin account.</p>
+            <a href="disable_2fa.php">Disable 2FA</a>
+        </div>
+        <?php endif; ?>
         <div class="card">
             <h2>Logout</h2>
             <p>Sign out of the admin dashboard.</p>

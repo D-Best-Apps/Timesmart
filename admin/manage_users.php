@@ -1,5 +1,11 @@
 <?php
-require_once 'header.php';
+require_once '../db.php';
+session_start();
+
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit;
+}
 
 // Handle form submission to update setting before fetching data for display
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_gps'])) {
@@ -14,14 +20,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_gps'])) {
     exit;
 }
 
-$users = $conn->query("SELECT ID, FirstName, LastName, TagID, ClockStatus, Office, TwoFAEnabled, AdminOverride2FA FROM users ORDER BY LastName");
+$users_result = $conn->query("SELECT ID, FirstName, LastName, TagID, ClockStatus, Office, TwoFAEnabled, AdminOverride2FA FROM users ORDER BY LastName");
+$users_data = [];
+while ($row = $users_result->fetch_assoc()) {
+    $users_data[] = $row;
+}
 
 // Fetch current GPS setting
 $gpsSetting = $conn->query("SELECT SettingValue FROM settings WHERE SettingKey = 'EnforceGPS'")->fetch_assoc();
 $gpsEnforced = isset($gpsSetting['SettingValue']) && $gpsSetting['SettingValue'] === '1';
 ?>
 
-<div class="admin-content">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Users - D-Best TimeClock</title>
+    <link rel="stylesheet" href="../css/uman.css">
+    <style>
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+        .modal-content { background: white; padding: 2rem; border-radius: 10px; width: 400px; max-width: 90%; margin: 10% auto; position: relative; }
+        .modal-content h3 { margin-top: 0; }
+        .modal-actions { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer; }
+        .btn.small { padding: 6px 12px; font-size: 14px; }
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted #000;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            top: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+
+<header class="banner">
+    <img src="../images/D-Best.png" alt="D-Best Logo" class="logo">
+    <h1>User Management</h1>
+    <nav>
+        <a href="dashboard.php">Dashboard</a>
+        <a href="view_punches.php">Timesheets</a>
+        <a href="summary.php">Summary</a>
+        <a href="reports.php">Reports</a>
+        <a href="manage_users.php" class="active">Users</a>
+        <a href="attendance.php">Attendance</a>
+        <a href="manage_admins.php">Admins</a>
+        <a href="../logout.php">Logout</a>
+    </nav>
+</header>
+
+
+
+<div class="uman-container">
     <div style="text-align: center; margin-bottom: 1rem;">
     <form method="POST" action="generate_backup_codes.php" style="display:inline-block;">
         <input type="hidden" name="mode" value="all">
@@ -29,7 +101,13 @@ $gpsEnforced = isset($gpsSetting['SettingValue']) && $gpsSetting['SettingValue']
     </form>
 
     <form method="POST" action="generate_backup_codes.php" style="display:inline-block; margin-left:1rem;">
-        <input type="hidden" name="userID" placeholder="User ID" required style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;">
+        <input type="hidden" name="mode" value="single">
+        <select name="userID" required style="padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc;">
+            <option value="">Select User</option>
+            <?php foreach ($users_data as $user): ?>
+                <option value="<?= $user['ID'] ?>"><?= htmlspecialchars($user['FirstName'] . ' ' . $user['LastName']) ?></option>
+            <?php endforeach; ?>
+        </select>
         <button type="submit" class="btn warning">🔐 Generate for User ID</button>
     </form>
 </div>
@@ -61,26 +139,32 @@ $gpsEnforced = isset($gpsSetting['SettingValue']) && $gpsSetting['SettingValue']
                 <th>Clock Status</th>
                 <th>Office</th>
                 <th>2FA</th>
-                <th>Override</th>
+                <th><span class="tooltip">Override<span class="tooltiptext">Lock: User cannot change 2FA settings.<br>Unlock: User can change 2FA settings.</span></span></th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-        <?php while ($user = $users->fetch_assoc()): ?>
+        <?php foreach ($users_data as $user): ?>
             <tr>
                 <td><?= htmlspecialchars($user['TagID']) ?></td>
                 <td><?= htmlspecialchars($user['FirstName'] . ' ' . $user['LastName']) ?></td>
                 <td><?= htmlspecialchars($user['ClockStatus'] ?? 'Out') ?></td>
                 <td><?= htmlspecialchars($user['Office'] ?? 'N/A') ?></td>
                 <td><?= $user['TwoFAEnabled'] ? '✅ Enabled' : '❌ Disabled' ?></td>
-                <td><?= $user['AdminOverride2FA'] ? 'Yes' : 'No' ?></td>
+                <td>
+                    <form method="POST" action="update_2fa_status.php" style="display:inline;">
+                        <input type="hidden" name="id" value="<?= $user['ID'] ?>">
+                        <input type="hidden" name="action" value="<?= $user['AdminOverride2FA'] ? 'lock' : 'unlock' ?>">
+                        <button type="submit" class="btn small <?= $user['AdminOverride2FA'] ? 'warning' : 'primary' ?>"><?= $user['AdminOverride2FA'] ? 'Lock' : 'Unlock' ?></button>
+                    </form>
+                </td>
                 <td>
                     <button class="btn warning small" onclick="location.href='edit_user.php?id=<?= $user['ID'] ?>'">Edit</button>
                     <button class="btn danger small" onclick="showResetModal(<?= $user['ID'] ?>)">Reset</button>
                     <button class="btn small" onclick="open2FAModal(<?= $user['ID'] ?>)">2FA Options</button>
                 </td>
             </tr>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
         </tbody>
     </table>
 </div>
@@ -92,7 +176,6 @@ $gpsEnforced = isset($gpsSetting['SettingValue']) && $gpsSetting['SettingValue']
             <h3>Add New User</h3>
             <input type="text" name="FirstName" placeholder="First Name" required>
             <input type="text" name="LastName" placeholder="Last Name" required>
-            <input type="email" name="Email" placeholder="Email">
             <input type="text" name="TagID" placeholder="Tag ID">
             <select name="Office" required>
                 <option value="">Select Office</option>
@@ -198,4 +281,5 @@ function confirm2FA(action) {
 }
 </script>
 
-<?php require_once 'footer.php'; ?>
+</body>
+</html>

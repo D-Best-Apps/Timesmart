@@ -42,15 +42,16 @@ if (
 $employeeID = intval($_POST['employeeID']);
 $from = $_POST['from'];
 $to = $_POST['to'];
-$confirmDates = $_POST['confirm'];
+$confirmPunchIDs = $_POST['confirm'];
 
 try {
-    foreach ($confirmDates as $date) {
-        $clockIn = $_POST['clockin'][$date] ?? null;
-        $lunchOut = $_POST['lunchout'][$date] ?? null;
-        $lunchIn = $_POST['lunchin'][$date] ?? null;
-        $clockOut = $_POST['clockout'][$date] ?? null;
-        $reason = trim($_POST['reason'][$date] ?? '');
+    foreach ($confirmPunchIDs as $punchId) {
+        $punchId = intval($punchId);
+        $clockIn = $_POST['clockin'][$punchId] ?? null;
+        $lunchOut = $_POST['lunchout'][$punchId] ?? null;
+        $lunchIn = $_POST['lunchin'][$punchId] ?? null;
+        $clockOut = $_POST['clockout'][$punchId] ?? null;
+        $reason = trim($_POST['reason'][$punchId] ?? '');
 
         $clockIn = $clockIn ?: null;
         $lunchOut = $lunchOut ?: null;
@@ -60,13 +61,14 @@ try {
         $totalHours = calculateTotalHours($clockIn, $lunchOut, $lunchIn, $clockOut);
 
         // Check for existing entry
-        $checkStmt = $conn->prepare("SELECT * FROM timepunches WHERE EmployeeID = ? AND Date = ?");
-        $checkStmt->bind_param("is", $employeeID, $date);
+        $checkStmt = $conn->prepare("SELECT * FROM timepunches WHERE id = ?");
+        $checkStmt->bind_param("i", $punchId);
         $checkStmt->execute();
         $result = $checkStmt->get_result();
         $existing = $result->fetch_assoc();
 
         if ($existing) {
+            $date = $existing['Date'];
             // Log changes
             $fields = [
                 "TimeIN" => $clockIn,
@@ -91,29 +93,11 @@ try {
             $updateStmt = $conn->prepare("
                 UPDATE timepunches 
                 SET TimeIN = ?, LunchStart = ?, LunchEnd = ?, TimeOut = ?, Note = ?, TotalHours = ?
-                WHERE EmployeeID = ? AND Date = ?
+                WHERE id = ?
             ");
-            $updateStmt->bind_param("sssssdsi", $clockIn, $lunchOut, $lunchIn, $clockOut, $reason, $totalHours, $employeeID, $date);
+            $updateStmt->bind_param("sssssdi", $clockIn, $lunchOut, $lunchIn, $clockOut, $reason, $totalHours, $punchId);
             $updateStmt->execute();
 
-        } else {
-            // Insert
-            $insertStmt = $conn->prepare("
-                INSERT INTO timepunches (EmployeeID, Date, TimeIN, LunchStart, LunchEnd, TimeOut, Note, TotalHours) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $insertStmt->bind_param("issssssd", $employeeID, $date, $clockIn, $lunchOut, $lunchIn, $clockOut, $reason, $totalHours);
-            $insertStmt->execute();
-
-            // Log inserts
-            foreach (['TimeIN' => $clockIn, 'LunchStart' => $lunchOut, 'LunchEnd' => $lunchIn, 'TimeOut' => $clockOut, 'Note' => $reason, 'TotalHours' => $totalHours] as $field => $newVal) {
-                if (!empty($newVal)) {
-                    $logStmt = $conn->prepare("INSERT INTO punch_changelog (EmployeeID, Date, ChangedBy, FieldChanged, OldValue, NewValue, Reason) VALUES (?, ?, ?, ?, NULL, ?, ?)");
-                    $adminUser = $_SESSION['admin'];
-                    $logStmt->bind_param("isssss", $employeeID, $date, $adminUser, $field, $newVal, $reason);
-                    $logStmt->execute();
-                }
-            }
         }
     }
 

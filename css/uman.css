@@ -180,10 +180,10 @@ nav a:hover {
 .slider {
     position: absolute;
     cursor: pointer;
-    top: 2px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
     background-color: #ccc;
     transition: var(--transition);
     border-radius: 26px;
@@ -242,12 +242,14 @@ input:checked + .slider:before {
 
 .modal-content input,
 .modal-content select {
-    width: 100%;
+    max-width: 100%;
+    width: auto;
     padding: 0.75rem;
     margin-bottom: 1rem;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
+    box-sizing: border-box;
 }
 
 .modal-actions {

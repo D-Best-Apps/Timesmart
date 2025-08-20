@@ -57,20 +57,9 @@ date_default_timezone_set('America/Chicago');
 </div>
 
 <div class="wrapper">
-  <main class="main card" style="max-width: 600px; margin: auto;">
+  <main class="main card" style="max-width: 950px; margin: auto;">
     <h1>Report an Issue</h1>
-    <form action="submit_issue.php" method="POST">
-      <label for="name">Your Name</label>
-      <input type="text" id="name" name="name" required>
-
-      <label for="email">Your Email</label>
-      <input type="email" id="email" name="email" required>
-
-      <label for="issue">Describe the issue</label>
-      <textarea id="issue" name="issue" rows="6" required></textarea>
-
-      <button type="submit">Submit Report</button>
-    </form>
+    <iframe width="900px" height="700px" src="https://forms.cloud.microsoft/r/Ht3bVaZVd8?embed=true" frameborder="0" marginwidth="0" marginheight="0" style="border: none; max-width:100%; max-height:100vh" allowfullscreen webkitallowfullscreen mozallowfullscreen msallowfullscreen> </iframe>
   </main>
 </div>
 

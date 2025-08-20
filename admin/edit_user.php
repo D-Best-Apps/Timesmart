@@ -41,18 +41,18 @@ $isAdmin = $checkAdmin->num_rows > 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $firstName = trim($_POST['FirstName']);
     $lastName = trim($_POST['LastName']);
-    $email = empty(trim($_POST['Email'])) ? NULL : trim($_POST['Email']);
-    $tagID = empty(trim($_POST['TagID'])) ? NULL : trim($_POST['TagID']);
+    $email = trim($_POST['Email']);
+    $tagID = trim($_POST['TagID']);
     $clockStatus = trim($_POST['ClockStatus']);
     $office = trim($_POST['Office']);
-    $jobTitle = empty(trim($_POST['JobTitle'])) ? NULL : trim($_POST['JobTitle']);
-    $phone = empty(trim($_POST['PhoneNumber'])) ? NULL : trim($_POST['PhoneNumber']);
+    $jobTitle = trim($_POST['JobTitle']);
+    $phone = trim($_POST['PhoneNumber']);
     $password = $_POST['Password'];
     $makeAdmin = isset($_POST['MakeAdmin']);
-    $enable2FA = isset($_POST['Enable2FA']);
-    $recoveryCode = empty(trim($_POST['RecoveryCode'])) ? NULL : trim($_POST['RecoveryCode']);
+    $enable2FA = isset($_POST['Enable2FA']) ? 1 : 0;
+    $recoveryCode = trim($_POST['RecoveryCode']);
 
-    if ($firstName && $lastName && $clockStatus && $office) { // Removed email from required fields
+    if ($firstName && $lastName && $email && $clockStatus && $office) {
         if (!empty($password)) {
             $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
             $stmt = $conn->prepare("UPDATE users SET FirstName = ?, LastName = ?, Email = ?, TagID = ?, ClockStatus = ?, Office = ?, Pass = ?, JobTitle = ?, PhoneNumber = ?, TwoFAEnabled = ?, TwoFARecoveryCode = ? WHERE ID = ?");
@@ -289,19 +289,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <form method="POST" class="uman-form">
         <label>First Name
-            <input type="text" name="FirstName" value="<?= htmlspecialchars($user['FirstName']) ?>" required>
+            <input type="text" name="FirstName" value="<?= htmlspecialchars($user['FirstName'] ?? '') ?>" required>
         </label>
 
         <label>Last Name
-            <input type="text" name="LastName" value="<?= htmlspecialchars($user['LastName']) ?>" required>
+            <input type="text" name="LastName" value="<?= htmlspecialchars($user['LastName'] ?? '') ?>" required>
         </label>
 
         <label>Email
-            <input type="text" name="Email" value="<?= htmlspecialchars($user['Email']) ?>">
+            <input type="text" name="Email" value="<?= htmlspecialchars($user['Email'] ?? '') ?>" required>
         </label>
 
         <label>Tag ID
-            <input type="text" name="TagID" value="<?= htmlspecialchars($user['TagID']) ?>">
+            <input type="text" name="TagID" value="<?= htmlspecialchars($user['TagID'] ?? '') ?>">
         </label>
 
         <label>Clock Status
@@ -322,11 +322,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </label>
 
         <label>Job Title
-            <input type="text" name="JobTitle" value="<?= htmlspecialchars($user['JobTitle']) ?>">
+            <input type="text" name="JobTitle" value="<?= htmlspecialchars($user['JobTitle'] ?? '') ?>">
         </label>
 
         <label>Phone Number
-            <input type="text" name="PhoneNumber" value="<?= htmlspecialchars($user['PhoneNumber']) ?>">
+            <input type="text" name="PhoneNumber" value="<?= htmlspecialchars($user['PhoneNumber'] ?? '') ?>">
         </label>
 
         <label>Password <small>(leave blank to keep current)</small>

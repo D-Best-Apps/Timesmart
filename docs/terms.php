@@ -10,6 +10,24 @@ date_default_timezone_set('America/Chicago');
   <link rel="icon" type="image/webp" href="../images/D-Best-favicon.webp">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#126ab3">
+  <style>
+    .main h1, .main h3 {
+      color: #333;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+    .main p {
+      line-height: 1.6;
+      margin-bottom: 1em;
+    }
+    .main ul {
+      margin-bottom: 1em;
+      padding-left: 20px;
+    }
+    .main ul li {
+      margin-bottom: 0.5em;
+    }
+  </style>
 </head>
 <body>
 
