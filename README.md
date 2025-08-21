@@ -28,7 +28,7 @@ Follow these steps to set up D-BEST TimeSmart on your local machine:
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/D-Best-Apps/Timesmart.git
     cd timeclock
     ```
 
