@@ -15,71 +15,72 @@ D-BEST TimeSmart is a web-based time clock application designed to manage employ
 
 Before you begin, ensure you have the following installed on your system:
 
-*   **Web Server:** Apache, Nginx, or any other web server that supports PHP.
-*   **PHP:** Version 8.0 or higher.
-*   **MySQL:** Version 5.7 or higher.
-*   **Composer:** For managing PHP dependencies.
-*   **Git:** For cloning the repository.
+*   **Docker:** For running the application in a container.
+*   **Docker Compose:** For managing the Docker containers.
 
 ## Installation
 
-Follow these steps to set up D-BEST TimeSmart on your local machine:
+Follow these steps to set up D-BEST TimeSmart using Docker:
 
 1.  **Clone the repository:**
 
     ```bash
     git clone https://github.com/D-Best-Apps/Timesmart.git
-    cd timeclock
+    cd Timesmart
     ```
 
-2.  **Install Dependencies:**
+2.  **Create a `.env` file:**
 
-    Run Composer to install the required PHP libraries:
+    Create a `.env` file in the `Install` directory and add the following environment variables:
 
-    ```bash
-    composer install
+    ```
+    DB_HOST=your_database_host
+    DB_USER=your_database_user
+    DB_PASS=your_database_password
+    DB_NAME=your_database_name
     ```
 
 3.  **Database Setup:**
 
-    *   Create a new MySQL database for the application.
-    *   Import the database schema from the `Install/timeclock.sql` file into your database. This will create the necessary tables and seed them with some initial data.
+    This Docker setup does not include a database. You will need to provide your own MySQL or MariaDB database. Once you have created your database, you can import the database schema from the `Install/timeclock-schema.sql` file. This will create the necessary tables and seed them with some initial data.
 
-4.  **Configuration:**
+4.  **Build and Run the Application:**
 
-    *   Rename the `.env.example` file to `.env`.
-    *   Open the `.env` file and update the following database connection settings:
+    From the `Install` directory, run the following command to build and start the application:
 
-        ```
-        DB_HOST=your_database_host
-        DB_USER=your_database_user
-        DB_PASS=your_database_password
-        DB_NAME=your_database_name
-        ```
+    ```bash
+    docker-compose up -d
+    ```
 
-5.  **Web Server Configuration:**
+5.  **Access the Application:**
 
-    *   Configure your web server to point to the root directory of the project (e.g., `/var/www/timeclock`).
-    *   Ensure that the web server has the necessary permissions to read and write to the project files.
-
-6.  **Access the Application:**
-
-    *   Open your web browser and navigate to the URL you configured in the previous step (e.g., `http://localhost`).
+    *   Open your web browser and navigate to `http://localhost:8080`.
 
 ## Usage
 
 *   **Admin Login:**
-    *   Navigate to `/admin/login.php` to access the admin login page.
+    *   Navigate to `http://localhost:8080/admin/login.php` to access the admin login page.
     *   The default admin credentials are:
         *   **Username:** admin
-        *   **Password:** admin
+        *   **Password:** password
 *   **Employee Login:**
-    *   Navigate to `/user/login.php` to access the employee login page.
+    *   Navigate to `http://localhost:8080/user/login.php` to access the employee login page.
     *   Employees can log in with the credentials created by the administrator.
 
 ## Troubleshooting
 
-*   **500 Internal Server Error:** This is often caused by incorrect file permissions. Ensure that the web server has the necessary permissions to read and write to the project files.
+*   **`docker-compose up` fails:** Ensure that you have Docker and Docker Compose installed correctly. Also, make sure that you are in the `Install` directory when you run the command.
 *   **Database Connection Error:** Double-check your database credentials in the `.env` file.
-*   **Page Not Found (404):** Ensure that your web server is configured correctly and that the URL you are using is correct.
+*   **Page Not Found (404):** Ensure that the application is running correctly by checking the Docker logs:
 
+    ```bash
+    docker-compose logs -f
+    ```
+
+## Contributing
+
+Contributions are welcome! Please feel free to fork the repository, make your changes, and submit a pull request.
+
+## License
+
+[Specify your license here, e.g., MIT License]
