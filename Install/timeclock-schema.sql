@@ -34,6 +34,7 @@ CREATE TABLE `users` (
   `PhoneNumber` varchar(20) DEFAULT NULL,
   `ThemePref` varchar(10) DEFAULT 'light',
   `TwoFARecoveryCode` text DEFAULT NULL,
+  `LockOut` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `TagID` (`TagID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
