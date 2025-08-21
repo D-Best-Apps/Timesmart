@@ -11,40 +11,75 @@ D-BEST TimeSmart is a web-based time clock application designed to manage employ
 *   **Two-Factor Authentication (2FA):** Enhanced security for user logins.
 *   **Privacy Policy & Terms of Use:** Dedicated pages for legal information.
 
-## Setup and Installation
+## Prerequisites
 
-To set up D-BEST TimeSmart, follow these steps:
+Before you begin, ensure you have the following installed on your system:
+
+*   **Web Server:** Apache, Nginx, or any other web server that supports PHP.
+*   **PHP:** Version 8.0 or higher.
+*   **MySQL:** Version 5.7 or higher.
+*   **Composer:** For managing PHP dependencies.
+*   **Git:** For cloning the repository.
+
+## Installation
+
+Follow these steps to set up D-BEST TimeSmart on your local machine:
 
 1.  **Clone the repository:**
+
     ```bash
     git clone <repository_url>
     cd timeclock
     ```
 
-2.  **Database Setup:**
-    *   Import the `timeclock-schema.sql` file into your MySQL database.
-    *   Update `db.php` with your database connection details.
+2.  **Install Dependencies:**
 
-3.  **Composer Dependencies:**
-    *   Ensure Composer is installed.
-    *   Run `composer install` in the project root to install necessary PHP dependencies (e.g., TCPDF, PHPOffice/PhpSpreadsheet, Endroid/QrCode).
+    Run Composer to install the required PHP libraries:
 
-4.  **Web Server Configuration:**
-    *   Configure your web server (Apache, Nginx, etc.) to serve the project root directory (`/var/www/timeclock/`).
-    *   Ensure PHP is installed and configured correctly.
+    ```bash
+    composer install
+    ```
 
-5.  **Access the Application:**
-    *   Open your web browser and navigate to the configured URL (e.g., `http://localhost/timeclock`).
+3.  **Database Setup:**
+
+    *   Create a new MySQL database for the application.
+    *   Import the database schema from the `Install/timeclock.sql` file into your database. This will create the necessary tables and seed them with some initial data.
+
+4.  **Configuration:**
+
+    *   Rename the `.env.example` file to `.env`.
+    *   Open the `.env` file and update the following database connection settings:
+
+        ```
+        DB_HOST=your_database_host
+        DB_USER=your_database_user
+        DB_PASS=your_database_password
+        DB_NAME=your_database_name
+        ```
+
+5.  **Web Server Configuration:**
+
+    *   Configure your web server to point to the root directory of the project (e.g., `/var/www/timeclock`).
+    *   Ensure that the web server has the necessary permissions to read and write to the project files.
+
+6.  **Access the Application:**
+
+    *   Open your web browser and navigate to the URL you configured in the previous step (e.g., `http://localhost`).
 
 ## Usage
 
-*   **Employee Login:** Employees can log in using their credentials to clock in and out.
-*   **Admin Login:** Administrators can access the admin panel to manage users, view reports, and configure settings.
+*   **Admin Login:**
+    *   Navigate to `/admin/login.php` to access the admin login page.
+    *   The default admin credentials are:
+        *   **Username:** admin
+        *   **Password:** admin
+*   **Employee Login:**
+    *   Navigate to `/user/login.php` to access the employee login page.
+    *   Employees can log in with the credentials created by the administrator.
 
-## Contributing
+## Troubleshooting
 
-Contributions are welcome! Please feel free to fork the repository, make your changes, and submit a pull request.
+*   **500 Internal Server Error:** This is often caused by incorrect file permissions. Ensure that the web server has the necessary permissions to read and write to the project files.
+*   **Database Connection Error:** Double-check your database credentials in the `.env` file.
+*   **Page Not Found (404):** Ensure that your web server is configured correctly and that the URL you are using is correct.
 
-## License
-
-[Specify your license here, e.g., MIT License]
